@@ -1,0 +1,19 @@
+{
+  "name": "element",
+  "repo": "tipm/element",
+  "description": "titanium element proxy wrapper",
+  "version": "0.0.1",
+  "keywords": [],
+  "dependencies": {
+    "component/emitter": "*"
+  },
+  "development": {},
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": [
+    "index.js",
+    "proxylist.js",
+    "util.js"
+  ],
+  "remotes": []
+}
