@@ -28,7 +28,7 @@ function Element(args){
   if (!args.type) { throw new Error('Element type must be provided on creation.'); }
 
   self._proxy = EL[args.type](args);
-
+  self._proxyCallbacks = {};
   for (var key in args){
     if (!~BLACKLISTED.indexOf(key)) { self[key] = args[key]; }
   }
@@ -37,6 +37,19 @@ function Element(args){
 // inherit from Emitter
 
 Element.prototype.__proto__ = Emitter.prototype;
+
+/**
+ * [off description]
+ * @type {[type]}
+ */
+
+Element.prototype.off =
+Element.prototype.removeListener =
+Element.prototype.removeAllListeners =
+Element.prototype.removeEventListener = function(event, fn) {
+  if (0 === arguments.length) { this.offProxy(); }
+  Emitter.prototype.off.apply(this, arguments);
+};
 
 /**
  * [set description]
@@ -73,9 +86,10 @@ Element.prototype.onProxy = function(event, fn){
   // add native proxy listener if non exists
 
   if (!this.hasListeners(_eventID)) {
-    this._proxy.addEventListener(event, function(e){
+    this._proxyCallbacks[event] = function(e){
       self.emit(_eventID, e);
-    });
+    };
+    this._proxy.addEventListener(event, this._proxyCallbacks[event]);
   }
 
   // add js event listener
@@ -133,16 +147,17 @@ Element.prototype.offProxy = function(event, fn){
       if (!~_event.indexOf('__proxy:')) { return; }
 
       var _evt = _event.replace('__proxy:', '');
-      var _evtCB = function(e){ self.emit(_event, e); };
+      var _evtCB = self._proxyCallbacks[_evt];
 
       self._proxy.removeEventListener(_evt, _evtCB);
+      self._proxyCallbacks[_evt] = null;
     });
   }
 
 
   // add js event listener
 
-  this.off(_eventID, fn);
+  this.off(this, _eventID, fn);
 
   if (!!event && (!fn || !this.hasListeners(_eventID))){
     this._proxy.removeEventListener(event, _evtCB);
@@ -176,6 +191,49 @@ Element.prototype.add = function(el) {
 Element.prototype.rm =
 Element.prototype.remove = function(el) {
   this._proxy.remove(el._proxy || el);
+};
+
+/**
+ * [open description]
+ * @param  {[type]} args [description]
+ * @return {[type]}      [description]
+ */
+
+Element.prototype.open = function(args){
+  this.visible = true;
+  this._proxy.open(args);
+};
+
+/**
+ * [close description]
+ * @param  {[type]} args [description]
+ * @return {[type]}      [description]
+ */
+
+Element.prototype.close = function(args){
+  this.visible = false;
+  this._proxy.close(args);
+};
+
+/**
+ * [show description]
+ * @param  {[type]} args [description]
+ * @return {[type]}      [description]
+ */
+Element.prototype.show = function(args){
+  this.visible = true;
+  this._proxy.show(args);
+};
+
+/**
+ * [hide description]
+ * @param  {[type]} args [description]
+ * @return {[type]}      [description]
+ */
+
+Element.prototype.hide = function(args){
+  this.visible = false;
+  this._proxy.hide(args);
 };
 
 /**
