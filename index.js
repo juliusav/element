@@ -5,8 +5,7 @@
 
 // Module dependencies
 
-var Emitter = require('emitter')
-  , EL = require('./proxylist');
+var Emitter = require('emitter');
 
 // Constants
 
@@ -15,6 +14,10 @@ var BLACKLISTED = ['_proxy','class','prototype','__proto__', 'on', 'off', 'emit'
 // expose element
 
 module.exports = Element;
+
+// Element instance stack
+
+Element.els = [];
 
 /**
  * [Element description]
@@ -26,12 +29,12 @@ function Element(args){
   var self = this;
 
   if (!args.type) { throw new Error('Element type must be provided on creation.'); }
-
-  self._proxy = EL[args.type](args);
   self._proxyCallbacks = {};
   for (var key in args){
     if (!~BLACKLISTED.indexOf(key)) { self[key] = args[key]; }
   }
+  self._proxy = (Function('return Ti.' + args.type)())(args);
+  Element.els.push(this);
 }
 
 // inherit from Emitter
@@ -58,8 +61,16 @@ Element.prototype.removeEventListener = function(event, fn) {
  */
 
 Element.prototype.set = function(key, value){
-  this[key] = value;
-  this._proxy[key] = value;
+  if ('string' !== typeof key && value === null) {
+    for (var prop in key){
+      this[prop] = key[prop];
+      this._proxy[prop] = key[prop];
+    }
+  } else {
+    this[key] = value;
+    this._proxy[key] = value;
+  }
+  return this;
 };
 
 /**
