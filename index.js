@@ -65,10 +65,12 @@ Element.prototype.set = function(key, value){
     for (var prop in key){
       this[prop] = key[prop];
       this._proxy[prop] = key[prop];
+      this.emit('change', { property: prop, value: key[prop] })
     }
   } else {
     this[key] = value;
     this._proxy[key] = value;
+    this.emit('change', { property: key, value: value })
   }
   return this;
 };
@@ -192,6 +194,7 @@ Element.prototype.exec = function(name){
 
 Element.prototype.add = function(el) {
   this._proxy.add(el._proxy || el);
+  this.emit('add', el);
 };
 
 /**
@@ -202,6 +205,7 @@ Element.prototype.add = function(el) {
 Element.prototype.rm =
 Element.prototype.remove = function(el) {
   this._proxy.remove(el._proxy || el);
+  this.emit('remove', el);
 };
 
 /**
@@ -213,6 +217,7 @@ Element.prototype.remove = function(el) {
 Element.prototype.open = function(args){
   this.visible = true;
   this._proxy.open(args);
+  this.emit('open');
 };
 
 /**
@@ -224,6 +229,7 @@ Element.prototype.open = function(args){
 Element.prototype.close = function(args){
   this.visible = false;
   this._proxy.close(args);
+  this.emit('close');
 };
 
 /**
@@ -234,6 +240,7 @@ Element.prototype.close = function(args){
 Element.prototype.show = function(args){
   this.visible = true;
   this._proxy.show(args);
+  this.emit('show');
 };
 
 /**
@@ -245,6 +252,7 @@ Element.prototype.show = function(args){
 Element.prototype.hide = function(args){
   this.visible = false;
   this._proxy.hide(args);
+  this.emit('hide');
 };
 
 /**
