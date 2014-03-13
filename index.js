@@ -9,7 +9,7 @@ var Emitter = require('emitter');
 
 // Constants
 
-var BLACKLISTED = ['_proxy','class','prototype','__proto__', 'on', 'off', 'emit', 'set', 'get', 'onProxy', 'emitProxy', 'offProxy', 'exec'];
+var BLACKLISTED = ['_proxy','prototype','__proto__', 'on', 'off', 'emit', 'set', 'get', 'onProxy', 'emitProxy', 'offProxy', 'exec'];
 
 // expose element
 
