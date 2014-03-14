@@ -33,7 +33,7 @@ function Element(args){
   for (var key in args){
     if (!~BLACKLISTED.indexOf(key)) { self[key] = args[key]; }
   }
-  self._proxy = (Function('return Ti.' + args.type)())(args);
+  self._proxy = (Function('return ' + args.type)())(args);
   Element.els.push(this);
 }
 
